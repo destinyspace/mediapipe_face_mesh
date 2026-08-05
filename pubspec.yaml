@@ -36,4 +36,21 @@ flutter:
         ffiPlugin: true
 
   assets:
-    - assets/models/
+    # destinyspace fork (destiny NGH-721) — the ONLY divergence from upstream
+    # v2.4.0. Upstream declares the whole directory, so all seven .tflite models
+    # ship in every consumer's bundle whether or not the app opens them. destiny
+    # opens exactly two: the base 468-point mesh and the short-range detector
+    # (enableIris / enableAttentionMesh / blendshapes are all off — see
+    # MediaPipeFaceMeshBackend). The other five are 7,852,364 bytes of dead
+    # weight on both platforms.
+    #
+    # Consumers that DO want iris, blendshapes, the attention mesh, or a
+    # full-range detector must not use this branch: rootBundle.load() throws for
+    # a model that is not declared here.
+    #
+    # Rebase note for the next upstream bump: this is a two-line replacement of
+    # the `assets:` list. Re-check the file names against
+    # assets/models/ before pinning — a renamed or added model changes what the
+    # consumer must declare, and destiny's bundle guard goes red when it does.
+    - assets/models/mediapipe_face_mesh.tflite
+    - assets/models/face_detection_short_range.tflite
