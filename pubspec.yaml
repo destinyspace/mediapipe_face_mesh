@@ -36,8 +36,15 @@ flutter:
         ffiPlugin: true
 
   assets:
-    # destinyspace fork (destiny NGH-721) — the ONLY divergence from upstream
-    # v2.4.0. Upstream declares the whole directory, so all seven .tflite models
+    # destinyspace fork — the FIRST of two divergences from upstream v2.4.0.
+    # This one is the `assets:` list below (destiny NGH-721); the second is the
+    # iOS privacy manifest — `ios/Resources/PrivacyInfo.xcprivacy` plus the
+    # `resource_bundles` entry in `ios/mediapipe_face_mesh.podspec` (destiny
+    # NGH-784). A rebase onto a new upstream tag must carry BOTH forward:
+    # dropping the manifest re-opens ITMS-91053 at upload, silently. FORK.md
+    # is the full account of both.
+    #
+    # Upstream declares the whole directory, so all seven .tflite models
     # ship in every consumer's bundle whether or not the app opens them. destiny
     # opens exactly two: the base 468-point mesh and the short-range detector
     # (enableIris / enableAttentionMesh / blendshapes are all off — see
