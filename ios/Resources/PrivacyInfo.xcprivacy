@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!--
+	  The privacy manifest for this pod's own binary (destiny NGH-784).
+
+	  WHY IT IS HERE AND NOT ONLY IN THE CONSUMER APP. Apple evaluates
+	  ITMS-91053 per Mach-O binary. `Frameworks/TensorFlowLiteC.framework/
+	  TensorFlowLiteC` is a STATIC Mach-O object, not a dylib, so it does not
+	  ship as a binary of its own: the linker folds it into the framework this
+	  pod builds, `mediapipe_face_mesh.framework`, and that is the binary in
+	  which `_stat` / `_fstat` show up undefined. Before this file the pod set
+	  `vendored_frameworks` and no `resource_bundles`, so upstream TensorFlow's
+	  own declaration at `src/include/tensorflow/lite/ios/
+	  TensorFlowLiteC.xcprivacy` was carried in the repository and never
+	  copied into any built product — every consumer had to re-declare it at
+	  app level or be rejected at upload.
+
+	  The declaration below is upstream TensorFlow's, unchanged: TFLite calls
+	  `stat`/`fstat` to mmap the `.tflite` models the consumer bundles, and
+	  C617.1 is "files inside the app or its container", which is what those
+	  models are. 0A2A.1 (user-granted files), 3B52.1 and DDA9.1 do not apply.
+
+	  The three empty keys are deliberate and true for this pod: face-mesh
+	  inference is on-device, this pod opens no network connection, collects
+	  nothing and tracks nobody. That is a different claim from the consumer
+	  app's, which is why the app keeps its own manifest — a manifest speaks
+	  only for the binary that carries it.
+	-->
+	<key>NSPrivacyTracking</key>
+	<false/>
+	<key>NSPrivacyCollectedDataTypes</key>
+	<array/>
+	<key>NSPrivacyTrackingDomains</key>
+	<array/>
+	<key>NSPrivacyAccessedAPITypes</key>
+	<array>
+		<dict>
+			<key>NSPrivacyAccessedAPIType</key>
+			<string>NSPrivacyAccessedAPICategoryFileTimestamp</string>
+			<key>NSPrivacyAccessedAPITypeReasons</key>
+			<array>
+				<string>C617.1</string>
+			</array>
+		</dict>
+	</array>
+</dict>
+</plist>
