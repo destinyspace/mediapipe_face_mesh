@@ -35,4 +35,19 @@ face detector, and TensorFlow Lite runtime binaries for Android and iOS.
 
   # Bundle the TensorFlow Lite C runtime copied into ios/Frameworks.
   s.vendored_frameworks = 'Frameworks/TensorFlowLiteC.framework'
+
+  # Ship a privacy manifest for the binary this pod actually produces.
+  #
+  # TensorFlowLiteC is a STATIC Mach-O object, so it links into
+  # `mediapipe_face_mesh.framework` rather than shipping as a binary of its
+  # own — and that framework is where `_stat` / `_fstat` are undefined.
+  # Apple evaluates ITMS-91053 per binary, so without this the required-reason
+  # API use travels into every consumer's app undeclared and each consumer has
+  # to re-declare it at app level. Upstream TensorFlow's own declaration is in
+  # the tree at `src/include/tensorflow/lite/ios/TensorFlowLiteC.xcprivacy`;
+  # `Resources/PrivacyInfo.xcprivacy` carries it, under the filename Apple
+  # looks for inside a resource bundle.
+  s.resource_bundles = {
+    'mediapipe_face_mesh_privacy' => ['Resources/PrivacyInfo.xcprivacy'],
+  }
 end
